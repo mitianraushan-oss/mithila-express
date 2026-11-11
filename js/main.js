@@ -20,6 +20,8 @@ const AUTO = params.get('auto') === '1';
 const TIME_SCALE = clamp(parseFloat(params.get('speed')) || 1, 1, 20);
 const FORCE_Q = params.has('q') ? clamp(parseInt(params.get('q'), 10) || 0, 0, 4) : null;
 const STEP = 1 / 60;
+const REDUCED_MOTION = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+const STOP_AFTER = 20;       // how far past the gate the rickshaw rolls before it parks
 const $ = (id) => document.getElementById(id);
 
 // ------------------------------------------------------------------ renderer
@@ -252,7 +254,7 @@ function simulate(h) {
     if (p.dist >= TOTAL) arrive();
     else if (p.fuel <= 0) { p.fuel = 0; gameOver(); }
   } else if (G.state === 'arrive' || G.state === 'win') {
-    const stop = TOTAL + 34;
+    const stop = TOTAL + STOP_AFTER;
     p.speed = Math.max(0, Math.min(p.speed, (stop - p.dist) * 1.4));
     if (p.speed < 0.25) p.speed = 0;
     p.dist += p.speed * h;
@@ -313,21 +315,23 @@ function present(dt) {
 
   const prog = clamp(p.dist / TOTAL, 0, 1);
   const night = sky.night;
-  rick.present(dt, p.speed, p.steer, p.bump, night, p.braking, t, p.inv > 0 && G.state === 'play');
+  rick.present(dt, p.speed, p.steer, p.bump, night, p.braking, t, p.inv > 0 && G.state === 'play', G.state === 'play' ? 1 : 0.25);
 
   // ---- camera
   if (G.state === 'menu') {
     const a = t * 0.14 + 2.5;
-    tmpPos.set(px + Math.sin(a) * 7.6, py + 2.7, pz + Math.cos(a) * 7.6);
+    tmpPos.set(px + Math.sin(a) * 8.6, py + 2.7, pz + Math.cos(a) * 8.6);
     // aim to one side so the rickshaw sits beside the title card, not behind it
-    const side = camera.aspect > 1.2 ? 3.3 : 0;
-    tmpLook.set(px + Math.cos(a) * side, py + 1.1 + (side ? 0 : 1.6), pz - Math.sin(a) * side);
+    const side = camera.aspect > 1.2 ? 4.8 : 0;
+    tmpLook.set(px + Math.cos(a) * side, py + 1.1 - (side ? 0 : 2.2), pz - Math.sin(a) * side);
     camPos.copy(tmpPos); camLook.copy(tmpLook);
   } else if (G.state === 'arrive' || G.state === 'win') {
-    const a = 0.55 + Math.sin(t * 0.12) * 0.25;
-    tmpPos.set(px - Math.sin(a) * 9.5, py + 2.3, pz - Math.cos(a) * 10.5);
-    tmpLook.set(px + 0.5, py + 2.6, pz + 6);
-    const k = Math.min(1, dt * 1.3);
+    // Park the camera beyond the stopping point, looking back at the rickshaw with the
+    // gate and the fireworks behind it.
+    const sd = TOTAL + STOP_AFTER, a = Math.sin(t * 0.1) * 0.35;
+    tmpPos.set(roadX(sd) - 4.2 + a * 3, roadY(sd) + 1.9, -(sd + 9.5));
+    tmpLook.set(px + 0.6, py + 2.4, pz + 3);
+    const k = Math.min(1, dt * 2.2);
     camPos.lerp(tmpPos, k); camLook.lerp(tmpLook, k);
   } else {
     G.camLat += (p.lat * 0.72 - G.camLat) * Math.min(1, dt * 5);
@@ -336,10 +340,10 @@ function present(dt) {
     camLook.set(roadX(ld) + lerp(G.camLat, p.lat, 0.5), roadY(ld) + 1.0, -ld);
   }
   G.shake = Math.max(0, G.shake - dt * 2.4);
-  const sh = G.shake * G.shake * 0.5;
+  const sh = REDUCED_MOTION ? 0 : G.shake * G.shake * 0.5;
   camera.position.set(camPos.x + (Math.random() - 0.5) * sh, camPos.y + (Math.random() - 0.5) * sh, camPos.z);
   camera.lookAt(camLook);
-  const fovTarget = G.baseFov + (p.boost ? 11 : 0) + smoothstep(30, 54, p.speed) * 3;
+  const fovTarget = G.baseFov + (REDUCED_MOTION ? 0 : (p.boost ? 11 : 0) + smoothstep(30, 54, p.speed) * 3);
   G.fov += (fovTarget - G.fov) * Math.min(1, dt * 3.5);
   if (Math.abs(camera.fov - G.fov) > 0.01) { camera.fov = G.fov; camera.updateProjectionMatrix(); }
 
@@ -402,12 +406,23 @@ function trackFps(dt) {
   }
 }
 
+// Draw one frame with culling off so every shader, texture and shadow pass is compiled
+// and uploaded before the player starts, instead of hitching when first seen.
+function warmUp() {
+  const culled = [];
+  scene.traverse((o) => { if (o.frustumCulled) { culled.push(o); o.frustumCulled = false; } });
+  renderer.render(scene, camera);
+  for (const o of culled) o.frustumCulled = true;
+}
+
 // ------------------------------------------------------------------ loop
 let last = performance.now(), acc = 0;
+const prof = { sim: 0, present: 0, render: 0, long: [], prev: null };
 function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(0.1, Math.max(0, (now - last) / 1000));
   last = now;
+  const t0 = performance.now();
   if (G.state !== 'pause') {
     acc += dt * TIME_SCALE;
     const maxSteps = 8 * TIME_SCALE;
@@ -415,16 +430,24 @@ function frame(now) {
     while (acc >= STEP && n < maxSteps) { simulate(STEP); acc -= STEP; n++; }
     if (n === maxSteps) acc = 0;
   }
+  const t1 = performance.now();
   present(G.state === 'pause' ? 0 : dt);
+  const t2 = performance.now();
   renderer.render(scene, camera);
+  const t3 = performance.now();
   trackFps(dt);
+  // Worst CPU cost per phase, and a log of slow frames, for tools/fps.mjs. A slow frame
+  // shows up as a long dt on the frame after it, so log the previous frame's phases.
+  prof.sim = Math.max(prof.sim, t1 - t0); prof.present = Math.max(prof.present, t2 - t1); prof.render = Math.max(prof.render, t3 - t2);
+  if (dt > 0.034) prof.long.push({ ms: Math.round(dt * 1000), dist: Math.round(G.player.dist), state: G.state, ...prof.prev });
+  prof.prev = { sim: +(t1 - t0).toFixed(1), present: +(t2 - t1).toFixed(1), render: +(t3 - t2).toFixed(1) };
+  if (prof.long.length > 50) prof.long.shift();
 }
 
 world.update(0);
 applyQuality();
 present(0);
-// Compile every shader up front so the first seconds of driving do not hitch.
-renderer.compile(scene, camera);
+warmUp();
 requestAnimationFrame(frame);
 
 // ------------------------------------------------------------------ test and debug hooks
@@ -437,6 +460,7 @@ window.__mithila = {
   get headlight() { return rick.spot.intensity; },
   get fps() { return G.fps; },
   get quality() { return G.quality; },
+  get prof() { return prof; },
   get drawCalls() { return renderer.info.render.calls; },
   get triangles() { return renderer.info.render.triangles; },
   start: startGame,

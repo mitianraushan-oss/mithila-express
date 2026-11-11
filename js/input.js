@@ -33,7 +33,10 @@ export class Input {
         this.touch[name] = v;
         el.classList.toggle('held', v);
       };
-      el.addEventListener('pointerdown', (e) => { el.setPointerCapture?.(e.pointerId); set(true)(e); });
+      el.addEventListener('pointerdown', (e) => {
+        try { el.setPointerCapture(e.pointerId); } catch { /* synthetic pointer */ }
+        set(true)(e);
+      });
       el.addEventListener('pointerup', set(false));
       el.addEventListener('pointercancel', set(false));
       el.addEventListener('lostpointercapture', set(false));

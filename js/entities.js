@@ -76,9 +76,9 @@ export class Entities {
       const bridge = riverF(d0) > 0.3;
       let li = 0;
 
-      if (r1 < 0.62) {
+      if (r1 < 0.5) {
         const lat = order[li++];
-        const n = r2 < 0.35 ? 3 : 1;
+        const n = r2 < 0.3 ? 3 : 1;
         for (let i = 0; i < n; i++) {
           ch.ents.push({ t: 'chai', d: d0 + (i - (n - 1) / 2) * 6, lat, hw: 1.0, hl: 1.0, alive: true, ph: r3 * 6 + i, idx: base.chai + nch++ });
         }

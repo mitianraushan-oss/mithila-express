@@ -30,8 +30,10 @@ export class Rickshaw {
     g.add(this.body);
 
     const lam = (c) => new THREE.MeshLambertMaterial({ color: c });
-    const green = new THREE.MeshStandardMaterial({ color: 0x17804a, roughness: 0.45, metalness: 0.1 });
-    const yellow = new THREE.MeshStandardMaterial({ color: 0xf6c21c, roughness: 0.6 });
+    // A faint self-glow at night keeps the rickshaw readable when it is back-lit.
+    const green = new THREE.MeshStandardMaterial({ color: 0x17804a, roughness: 0.45, metalness: 0.1, emissive: 0x17804a, emissiveIntensity: 0 });
+    const yellow = new THREE.MeshStandardMaterial({ color: 0xf6c21c, roughness: 0.6, emissive: 0xf6c21c, emissiveIntensity: 0 });
+    this.paint = [green, yellow];
     const black = lam(0x1a1a1c), grey = lam(0x8a8d92);
     const add = (geo, mat, x, y, z, parent = this.body) => {
       const m = new THREE.Mesh(geo, mat);
@@ -121,18 +123,24 @@ export class Rickshaw {
     this.spin = 0;
   }
 
-  // lean: steering in [-1, 1]; bump: 0..1 jolt; flash: blink while invulnerable
-  present(dt, speed, lean, bump, night, braking, time, flash) {
+  // lean: steering in [-1, 1]; bump: 0..1 jolt; flash: blink while invulnerable;
+  // beam: strength of the fake volumetric cone (turned down when the camera faces it)
+  present(dt, speed, lean, bump, night, braking, time, flash, beam = 1) {
     this.spin -= speed * dt / 0.3;
     for (const w of this.wheels) w.rotation.x = this.spin;
     this.wheels[0].rotation.y = -lean * 0.4;
     this.body.rotation.z = -lean * 0.09;
     this.body.rotation.x = -bump * 0.07 + Math.sin(time * 31) * 0.003 * Math.min(1, speed / 10);
     this.body.position.y = bump * 0.16 + Math.sin(time * 23) * 0.008 * Math.min(1, speed / 10);
-    this.body.visible = !flash || Math.floor(time * 14) % 2 === 0;
+    // Blink while invulnerable. Only meshes are hidden: hiding the lights would change the
+    // light count and force every shader to recompile.
+    const vis = !flash || Math.floor(time * 14) % 2 === 0;
+    this.body.visible = vis;
+    for (const w of this.wheels) w.visible = vis;
 
+    for (const m of this.paint) m.emissiveIntensity = night * 0.16;
     this.spot.intensity = night * 520;
-    this.beamU.uOpacity.value = night * 0.3;
+    this.beamU.uOpacity.value = night * 0.3 * beam;
     this.headMat.emissiveIntensity = lerp(0.5, 5, night);
     this.tailMat.emissiveIntensity = (braking ? 4 : 0.5) + night * 1.5;
   }

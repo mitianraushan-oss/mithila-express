@@ -12,7 +12,7 @@ export const PLAYER = {
   cruise: 30, fast: 38, slow: 12, boost: 54,
   accel: 14, brake: 26,
   drain: 1.45, boostDrain: 3.2,
-  chaiFuel: 10,
+  chaiFuel: 9,
   halfW: 0.7, halfL: 1.3,
 };
 
@@ -33,7 +33,7 @@ export const REGIONS = [
   },
   {
     name: 'Deccan Plateau', tag: 'Basalt mesas under a hard noon sun',
-    groundA: 0xc9a26a, groundB: 0xa07c4c, shoulder: 0xb08a5a, road: 0xf2ece4,
+    groundA: 0xb98f58, groundB: 0x8c7446, shoulder: 0xa9855a, road: 0xf2ece4,
     hill: 16, roll: 2.0, field: 0.0, ridge: 1.0,
     props: [
       { type: 'mesa', n: 2.2, min: 60, max: 150, s: [11, 26], bias: 1 },

@@ -14,10 +14,10 @@ const KEYS = [
   { p: 0.30, el: 66, az: 60, sun: C(0xfffaf0), sunI: 3.6, top: C(0x2f7fdc), hor: C(0xe3dcc6), hSky: C(0xcfe2ff), hGnd: C(0xb79a70), hI: 1.3, fn: 100, ff: 470, stars: 0, sunset: 0, cloud: C(0xffffff), exp: 1.0 },
   { p: 0.42, el: 30, az: 5, sun: C(0xffe0a8), sunI: 3.2, top: C(0x4a83d0), hor: C(0xf2d6a0), hSky: C(0xc8d4f0), hGnd: C(0x8f8a58), hI: 1.15, fn: 100, ff: 470, stars: 0, sunset: 0.3, cloud: C(0xfff0d8), exp: 1.0 },
   { p: 0.50, el: 11, az: -22, sun: C(0xffab5e), sunI: 3.0, top: C(0x5560b0), hor: C(0xff9d52), hSky: C(0xc9a0c0), hGnd: C(0x7a5a48), hI: 0.9, fn: 80, ff: 440, stars: 0, sunset: 0.85, cloud: C(0xffb078), exp: 1.0 },
-  { p: 0.565, el: 1.5, az: -27, sun: C(0xff5a2a), sunI: 1.4, top: C(0x3a2c6e), hor: C(0xff5f3c), hSky: C(0x8a6aa8), hGnd: C(0x4a3540), hI: 0.6, fn: 70, ff: 400, stars: 0.05, sunset: 1, cloud: C(0xd0527a), exp: 1.05 },
-  { p: 0.62, el: -7, az: -30, sun: C(0x8090c0), sunI: 0.2, top: C(0x161a48), hor: C(0x6a3a62), hSky: C(0x46508c), hGnd: C(0x20202c), hI: 0.55, fn: 60, ff: 360, stars: 0.4, sunset: 0.5, cloud: C(0x4a3560), exp: 1.1 },
-  { p: 0.70, el: -20, az: -30, sun: C(0x9db4ff), sunI: 0.75, top: C(0x060a1e), hor: C(0x142244), hSky: C(0x2c3a70), hGnd: C(0x10141c), hI: 0.6, fn: 50, ff: 330, stars: 1, sunset: 0, cloud: C(0x1a2444), exp: 1.15 },
-  { p: 1.00, el: -30, az: -30, sun: C(0xa8bcff), sunI: 0.8, top: C(0x050816), hor: C(0x16254a), hSky: C(0x2c3a70), hGnd: C(0x10141c), hI: 0.6, fn: 50, ff: 320, stars: 1, sunset: 0, cloud: C(0x1a2444), exp: 1.15 },
+  { p: 0.565, el: 1.5, az: -27, sun: C(0xff5a2a), sunI: 1.4, top: C(0x3a2c6e), hor: C(0xff5f3c), hSky: C(0x8a6aa8), hGnd: C(0x5a4048), hI: 0.85, fn: 70, ff: 400, stars: 0.05, sunset: 1, cloud: C(0xd0527a), exp: 1.05 },
+  { p: 0.62, el: -7, az: -30, sun: C(0x8090c0), sunI: 0.2, top: C(0x161a48), hor: C(0x6a3a62), hSky: C(0x46508c), hGnd: C(0x2a2a38), hI: 0.8, fn: 60, ff: 360, stars: 0.4, sunset: 0.5, cloud: C(0x4a3560), exp: 1.1 },
+  { p: 0.70, el: -20, az: -30, sun: C(0x9db4ff), sunI: 0.75, top: C(0x060a1e), hor: C(0x142244), hSky: C(0x34447e), hGnd: C(0x161b26), hI: 0.85, fn: 50, ff: 330, stars: 1, sunset: 0, cloud: C(0x1a2444), exp: 1.15 },
+  { p: 1.00, el: -30, az: -30, sun: C(0xa8bcff), sunI: 0.8, top: C(0x050816), hor: C(0x16254a), hSky: C(0x34447e), hGnd: C(0x161b26), hI: 0.85, fn: 50, ff: 320, stars: 1, sunset: 0, cloud: C(0x1a2444), exp: 1.15 },
 ];
 
 const MOON_SWITCH = 0.6;

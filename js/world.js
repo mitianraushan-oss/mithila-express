@@ -246,7 +246,9 @@ export class World {
     sign.position.set(0, 8.6, 0.57);
     const top = new THREE.Mesh(new THREE.ConeGeometry(1.5, 2.0, 4), stone);
     top.position.set(0, 10.8, 0); top.rotation.y = Math.PI / 4;
-    g.add(beam, sign, top);
+    const back = sign.clone();
+    back.position.z = -0.57; back.rotation.y = Math.PI;
+    g.add(beam, sign, back, top);
     this.gateLight = new THREE.PointLight(0xffb060, 0, 60, 1.4);
     this.gateLight.position.set(0, 6.2, 5);
     g.add(this.gateLight);
@@ -416,7 +418,7 @@ export class World {
     if (d0 > village + 40) {
       for (let i = 0; i < 10; i++) {
         const d = d0 + 3 + i * 6;
-        for (const s of [-1, 1]) this.place(P.diya, roadX(d) + s * 6.15, terrainY(s * 6.15, d) + 0.02, -d, i, 1.5, 1.5, 1.5);
+        for (const s of [-1, 1]) this.place(P.diya, roadX(d) + s * 6.15, terrainY(s * 6.15, d) + 0.02, -d, i, 1.25, 1.25, 1.25);
       }
     }
 
