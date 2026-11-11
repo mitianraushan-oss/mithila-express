@@ -60,10 +60,10 @@ export function truckSignTexture() {
   x.strokeStyle = '#c8262c'; x.lineWidth = 10; x.strokeRect(5, 5, 246, 118);
   x.strokeStyle = '#1f4e8c'; x.lineWidth = 3; x.strokeRect(14, 14, 228, 100);
   x.textAlign = 'center'; x.textBaseline = 'middle';
-  x.font = 'bold 34px Georgia, serif';
-  x.fillStyle = '#1f4e8c'; x.fillText('HORN', 74, 46);
-  x.fillStyle = '#c8262c'; x.fillText('OK', 128, 82);
-  x.fillStyle = '#1f4e8c'; x.fillText('PLEASE', 172, 46);
+  x.font = 'bold 27px Georgia, serif';
+  x.fillStyle = '#1f4e8c'; x.fillText('HORN', 68, 44); x.fillText('PLEASE', 174, 44);
+  x.font = 'bold 36px Georgia, serif';
+  x.fillStyle = '#c8262c'; x.fillText('OK', 128, 86);
   lotus(x, 44, 88, 17, 8, PAL.pink, PAL.red); lotus(x, 212, 88, 17, 8, PAL.pink, PAL.red);
   return tex(c);
 }

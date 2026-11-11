@@ -11,7 +11,7 @@ page.on('pageerror', (e) => console.log('[pageerror]', e.message));
 await page.goto('http://localhost:4173/?q=1');
 await page.waitForFunction(() => window.__mithila);
 if (dists[0] === 'menu') { await page.waitForTimeout(1500); await page.screenshot({ path: `${outDir}/menu.png` }); dists.shift(); }
-await page.evaluate(() => window.__mithila.start());
+await page.evaluate((t) => { window.__truck = t; window.__mithila.start(); }, process.env.TRUCK === '1');
 for (const d of dists) {
   if (d === 'win') {
     await page.evaluate(() => { const m = window.__mithila; m.setDist(m.TOTAL - 40); m.setFuel(100); m.player.speed = 30; });
@@ -20,7 +20,7 @@ for (const d of dists) {
     await page.screenshot({ path: `${outDir}/win.png` });
     continue;
   }
-  await page.evaluate((d) => { const m = window.__mithila; m.setDist(+d); m.setFuel(100); m.player.speed = 30; m.player.inv = 0; }, d);
+  await page.evaluate((d) => { const m = window.__mithila; m.setDist(+d); m.setFuel(100); m.player.speed = 30; m.player.inv = 0; if (window.__truck) { m.spawn('truck', 26, 2.7); m.spawn('cow', 34, -3.6); } }, d);
   await page.waitForTimeout(Number(process.env.WAIT || 1800));
   await page.screenshot({ path: `${outDir}/d${d}.png` });
   console.log('shot', d, await page.evaluate(() => { const m = window.__mithila; return JSON.stringify({ state: m.state, dist: Math.round(m.player.dist), fps: Math.round(m.fps), calls: m.drawCalls, tris: m.triangles, q: m.quality }); }));

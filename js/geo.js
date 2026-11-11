@@ -266,6 +266,8 @@ function truckGlow() {
   return merge([
     part(sph(0.34, 8, 6), 0xfff0c0, M(['t', 0.85, 1.12, -3.5])),
     part(sph(0.34, 8, 6), 0xfff0c0, M(['t', -0.85, 1.12, -3.5])),
+    part(sph(0.2, 6, 5), 0xa00804, M(['t', 0.95, 0.85, 3.44])),      // tail lights
+    part(sph(0.2, 6, 5), 0xa00804, M(['t', -0.95, 0.85, 3.44])),
   ]);
 }
 
