@@ -1,0 +1,17 @@
+{
+  "name": "mithila-express",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Drive an auto-rickshaw from Bangalore to Madhubani. A 3D browser game built with three.js, no build step.",
+  "type": "module",
+  "scripts": {
+    "start": "node tools/serve.mjs",
+    "test": "playwright test",
+    "fps": "node tools/fps.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "three": "0.170.0"
+  },
+  "license": "MIT"
+}

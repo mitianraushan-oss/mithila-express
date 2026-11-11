@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#1c1410">
+<meta name="description" content="Drive an auto-rickshaw from Bangalore to Madhubani. A small 3D browser game built with three.js.">
+<title>Mithila Express</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231c1410'/%3E%3Cpath d='M5 21v-6l5-2 2-6c6-2 11-1 15 1v13z' fill='%23f6c21c'/%3E%3Cpath d='M5 21v-5h22v5z' fill='%2317804a'/%3E%3Ccircle cx='10' cy='23' r='3.4' fill='%23f4e7c5' stroke='%231c1410' stroke-width='2'/%3E%3Ccircle cx='23' cy='23' r='3.4' fill='%23f4e7c5' stroke='%231c1410' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+</head>
+<body>
+<canvas id="game" aria-label="Mithila Express game view"></canvas>
+
+<div id="hud" hidden>
+  <div class="hud-top">
+    <div class="panel chai-panel">
+      <div class="label">Chai</div>
+      <div class="meter" id="fuel" role="meter" aria-label="Chai remaining" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="fuel-fill"></div></div>
+      <div class="sub"><b id="chai-count">0</b> cups</div>
+    </div>
+    <div class="panel journey">
+      <div id="region-name">Karnataka Plains</div>
+      <div class="progress" id="progress" role="progressbar" aria-label="Journey progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div id="progress-fill"></div>
+        <i style="left:20%"></i><i style="left:40%"></i><i style="left:60%"></i><i style="left:80%"></i>
+        <div id="progress-marker"></div>
+      </div>
+      <div class="ends"><span>Bangalore</span><span id="km-left">2100 km to go</span><span>Madhubani</span></div>
+    </div>
+    <div class="panel stats">
+      <div class="speed"><b id="speed">0</b> km/h</div>
+      <div id="clock">0:00</div>
+      <div class="btns">
+        <button id="btn-mute" type="button" aria-label="Toggle sound">♪</button>
+        <button id="btn-pause" type="button" aria-label="Pause">Ⅱ</button>
+      </div>
+    </div>
+  </div>
+  <div id="banner" aria-live="polite"><h2></h2><p></p></div>
+  <div id="toast" aria-live="polite"></div>
+  <div id="touch">
+    <div class="steer">
+      <button type="button" data-touch="left" aria-label="Steer left">◀</button>
+      <button type="button" data-touch="right" aria-label="Steer right">▶</button>
+    </div>
+    <button type="button" data-touch="boost" class="boost" aria-label="Boost">BOOST</button>
+  </div>
+</div>
+
+<div class="overlay" id="menu">
+  <div class="card">
+    <div class="zig"></div>
+    <p class="kicker">बेंगलुरु से मधुबनी</p>
+    <h1>Mithila Express</h1>
+    <p class="lead">One auto-rickshaw, 2100 kilometres, and a lot of chai.</p>
+    <ul class="how">
+      <li><kbd>←</kbd><kbd>→</kbd> or <kbd>A</kbd><kbd>D</kbd> steer</li>
+      <li><kbd>Space</kbd> boost, <kbd>↑</kbd><kbd>↓</kbd> faster / brake</li>
+      <li>Collect chai cups: chai is your fuel</li>
+      <li>Avoid cows, trucks and potholes</li>
+    </ul>
+    <button class="primary" id="btn-start" type="button">Start the journey</button>
+    <p class="fine"><kbd>P</kbd> pause · <kbd>M</kbd> sound · <kbd>H</kbd> horn</p>
+    <div class="zig"></div>
+  </div>
+</div>
+
+<div class="overlay" id="pause" hidden>
+  <div class="card small">
+    <h2>Paused</h2>
+    <button class="primary" id="btn-resume" type="button">Keep driving</button>
+    <button id="btn-restart-p" type="button">Start over</button>
+  </div>
+</div>
+
+<div class="overlay" id="over" hidden>
+  <div class="card small">
+    <div class="zig"></div>
+    <h2>Out of chai!</h2>
+    <p id="over-text">The rickshaw sputters to a stop.</p>
+    <button class="primary" id="btn-retry" type="button">Retry from here</button>
+    <button id="btn-restart" type="button">Back to Bangalore</button>
+    <div class="zig"></div>
+  </div>
+</div>
+
+<div class="overlay" id="win" hidden>
+  <div class="card wide">
+    <p class="kicker">मधुबनी में आपका स्वागत है</p>
+    <h2>You reached Madhubani!</h2>
+    <canvas id="painting" width="960" height="640" aria-label="A Madhubani-style painting of your journey"></canvas>
+    <p id="win-stats"></p>
+    <button class="primary" id="btn-again" type="button">Drive again</button>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
