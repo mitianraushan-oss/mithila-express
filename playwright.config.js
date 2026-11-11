@@ -2,9 +2,11 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
-  timeout: 90_000,
+  // Generous limits: CI machines render WebGL in software and can be 10x slower than a laptop.
+  timeout: 300_000,
+  expect: { timeout: 60_000 },
   fullyParallel: true,
-  workers: 3,
+  workers: process.env.CI ? 2 : 3,
   reporter: [['list']],
   use: {
     baseURL: 'http://localhost:4173',

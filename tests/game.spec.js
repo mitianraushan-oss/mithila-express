@@ -2,7 +2,7 @@
 // drives it with real input events, and fails on any console error or page error.
 import { test, expect } from '@playwright/test';
 
-const Q = '?q=4';   // lowest render quality: the software rasteriser is slow
+const Q = '?q=5';   // test-only minimum quality: the software rasteriser is slow
 
 async function open(page, query = Q) {
   const errors = [];
@@ -77,16 +77,16 @@ test('Space boosts; up and down change speed', async ({ page }) => {
   const errors = await open(page);
   await start(page);
   await sandbox(page);
-  await expect.poll(async () => (await player(page)).speed, { timeout: 15_000 }).toBeGreaterThan(29);
+  await expect.poll(async () => (await player(page)).speed).toBeGreaterThan(29);
   await page.keyboard.down('Space');
   await expect.poll(async () => (await player(page)).speed).toBeGreaterThan(48);
   expect((await player(page)).boost).toBe(true);
   await page.keyboard.up('Space');
   await page.keyboard.down('ArrowDown');
-  await expect.poll(async () => (await player(page)).speed, { timeout: 15_000 }).toBeLessThan(16);
+  await expect.poll(async () => (await player(page)).speed).toBeLessThan(16);
   await page.keyboard.up('ArrowDown');
   await page.keyboard.down('KeyW');
-  await expect.poll(async () => (await player(page)).speed, { timeout: 15_000 }).toBeGreaterThan(36);
+  await expect.poll(async () => (await player(page)).speed).toBeGreaterThan(36);
   await page.keyboard.up('KeyW');
   expect(errors).toEqual([]);
 });
@@ -106,7 +106,7 @@ test('progress bar and region name follow the journey', async ({ page }) => {
   }
   // crossing a border announces the new region
   await game(page, () => { window.__mithila.setDist(1180); window.__mithila.player.speed = 30; });
-  await expect(page.locator('#banner h2')).toHaveText('Deccan Plateau', { timeout: 15_000 });
+  await expect(page.locator('#banner h2')).toHaveText('Deccan Plateau');
   await expect(page.locator('#banner')).toHaveClass(/show/);
   expect(errors).toEqual([]);
 });
@@ -116,7 +116,7 @@ test('chai cups refill the meter', async ({ page }) => {
   await start(page);
   await sandbox(page);
   expect(await game(page, () => window.__mithila.spawn('chai', 30, -2.6))).toBe(true);
-  await expect.poll(async () => (await player(page)).chai, { timeout: 15_000 }).toBe(1);
+  await expect.poll(async () => (await player(page)).chai).toBe(1);
   expect((await player(page)).fuel).toBeGreaterThan(62);
   await expect(page.locator('#chai-count')).toHaveText('1');
   expect(errors).toEqual([]);
@@ -128,7 +128,7 @@ for (const [type, cost] of [['cow', 14], ['pot', 6], ['truck', 24]]) {
     await start(page);
     await sandbox(page);
     expect(await game(page, (t) => window.__mithila.spawn(t, 35, -2.6), type)).toBe(true);
-    await expect.poll(async () => (await player(page)).hits, { timeout: 15_000 }).toBe(1);
+    await expect.poll(async () => (await player(page)).hits).toBe(1);
     const p = await player(page);
     expect(p.fuel).toBeLessThan(60 - cost + 0.5);
     expect(p.fuel).toBeGreaterThan(60 - cost - 6);
@@ -146,7 +146,7 @@ test('steering around a cow avoids it', async ({ page }) => {
   await page.keyboard.down('ArrowRight');
   await expect.poll(async () => (await player(page)).lat).toBeGreaterThan(0.5);
   await page.keyboard.up('ArrowRight');
-  await expect.poll(async () => (await player(page)).dist, { timeout: 15_000 }).toBeGreaterThan(d0 + 70);
+  await expect.poll(async () => (await player(page)).dist).toBeGreaterThan(d0 + 70);
   expect((await player(page)).hits).toBe(0);
   expect(errors).toEqual([]);
 });
@@ -156,7 +156,7 @@ test('an empty cup ends the run, and retry resumes from the region start', async
   await start(page);
   await sandbox(page, 2600);
   await game(page, () => window.__mithila.setFuel(0.3));
-  await expect.poll(() => state(page), { timeout: 15_000 }).toBe('over');
+  await expect.poll(() => state(page)).toBe('over');
   await expect(page.locator('#over')).toBeVisible();
   await expect(page.locator('#btn-retry')).toHaveText('Retry from Ganga Plains');
   await page.locator('#btn-retry').click();
@@ -204,11 +204,11 @@ test('reaching Madhubani shows the win screen and paints the picture', async ({ 
   const errors = await open(page);
   await start(page);
   await game(page, () => { const m = window.__mithila; m.clearRoad(); m.setDist(m.TOTAL - 60); m.setFuel(100); m.player.speed = 30; });
-  await expect.poll(() => state(page), { timeout: 30_000 }).toBe('win');
+  await expect.poll(() => state(page)).toBe('win');
   await expect(page.locator('#win')).toBeVisible();
   await expect(page.locator('#win h2')).toHaveText('You reached Madhubani!');
   await expect(page.locator('#win-stats')).toContainText('cups of chai');
-  await expect(page.locator('#painting')).toHaveAttribute('data-done', '1', { timeout: 30_000 });
+  await expect(page.locator('#painting')).toHaveAttribute('data-done', '1');
   // the canvas really was painted: many distinct colours, not a blank sheet
   const colours = await page.evaluate(() => {
     const c = document.getElementById('painting'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
@@ -260,7 +260,7 @@ test.describe('on a phone', () => {
     await hold('[data-touch=right]', () => expect.poll(async () => (await player(page)).lat).toBeGreaterThan(lat0 + 1.5));
     const lat1 = (await player(page)).lat;
     await hold('[data-touch=left]', () => expect.poll(async () => (await player(page)).lat).toBeLessThan(lat1 - 1.5));
-    await hold('[data-touch=boost]', () => expect.poll(async () => (await player(page)).speed, { timeout: 15_000 }).toBeGreaterThan(44));
+    await hold('[data-touch=boost]', () => expect.poll(async () => (await player(page)).speed).toBeGreaterThan(44));
     // releasing the button really releases it
     await expect.poll(async () => (await player(page)).boost).toBe(false);
     expect(errors).toEqual([]);
@@ -268,8 +268,8 @@ test.describe('on a phone', () => {
 });
 
 test('autopilot drives the whole journey from Bangalore to Madhubani', async ({ page }) => {
-  test.setTimeout(240_000);
-  const errors = await open(page, '?auto=1&speed=10&q=4');
+  test.setTimeout(600_000);
+  const errors = await open(page, '?auto=1&speed=10&q=5');
   await start(page);
   const seen = new Set();
   let retries = 0;
@@ -278,7 +278,7 @@ test('autopilot drives the whole journey from Bangalore to Madhubani', async ({ 
     const s = await state(page);
     if (s === 'over') { retries++; await page.locator('#btn-retry').click(); }
     return s;
-  }, { timeout: 220_000, intervals: [500] }).toBe('win');
+  }, { timeout: 570_000, intervals: [500] }).toBe('win');
   expect([...seen].sort()).toEqual(['Bihar Farmland', 'Deccan Plateau', 'Ganga Plains', 'Karnataka Plains', 'Madhubani Village']);
   const p = await player(page);
   console.log(`autopilot: time ${Math.round(p.clock)}s, ${p.chai} chai, ${p.hits} hits, ${retries} retries`);

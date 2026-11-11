@@ -70,7 +70,7 @@ per frame. If a device cannot hold 50 fps, the game steps its pixel ratio and sh
 resolution down by itself.
 
 Useful URL switches: `?auto=1` lets the autopilot drive, `?speed=5` runs the simulation five
-times faster, `?q=0`..`?q=4` pins the quality level (0 is best).
+times faster, `?q=0`..`?q=4` pins the quality level (0 is best; `?q=5` is a blurry minimum used by the tests).
 
 ## How it is put together
 

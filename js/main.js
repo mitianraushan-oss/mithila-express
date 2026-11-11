@@ -18,7 +18,7 @@ import { paintingSteps } from './madhubani.js';
 const params = new URLSearchParams(location.search);
 const AUTO = params.get('auto') === '1';
 const TIME_SCALE = clamp(parseFloat(params.get('speed')) || 1, 1, 20);
-const FORCE_Q = params.has('q') ? clamp(parseInt(params.get('q'), 10) || 0, 0, 4) : null;
+const FORCE_Q = params.has('q') ? clamp(parseInt(params.get('q'), 10) || 0, 0, 5) : null;
 const STEP = 1 / 60;
 const REDUCED_MOTION = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 const STOP_AFTER = 20;       // how far past the gate the rickshaw rolls before it parks
@@ -48,6 +48,7 @@ hud.muted(sfx.muted);
 // Quality ladder for the adaptive governor: pixel ratio cap and sun shadow map size.
 const QUALITY = [
   { pr: 2, sh: 2048 }, { pr: 1.5, sh: 2048 }, { pr: 1.25, sh: 1024 }, { pr: 1, sh: 1024 }, { pr: 0.75, sh: 1024 },
+  { pr: 0.4, sh: 512 },     // only reachable with ?q=5, for automated tests
 ];
 
 // ------------------------------------------------------------------ state
@@ -400,7 +401,7 @@ function trackFps(dt) {
   G.fpsFrames = 0; G.fpsTime = 0;
   if (G.fpsSkip > 0) { G.fpsSkip--; return; }
   G.fps = fps;
-  if (FORCE_Q === null && TIME_SCALE === 1 && fps < 50 && G.quality < QUALITY.length - 1 && !document.hidden) {
+  if (FORCE_Q === null && TIME_SCALE === 1 && fps < 50 && G.quality < QUALITY.length - 2 && !document.hidden) {
     G.quality++;
     applyQuality();
   }
